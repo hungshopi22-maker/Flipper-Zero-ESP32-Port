@@ -20,51 +20,50 @@
 #define BOARD_NAME        "LilyGo T-Embed CC1101"
 #define BOARD_TARGET      "esp32s3"
 
-/* ---- Hardware Button Pins ---- */
-#define BOARD_PIN_BTN_UP        41
-#define BOARD_PIN_BTN_DOWN      40
-#define BOARD_PIN_BTN_LEFT      39
-#define BOARD_PIN_BTN_RIGHT     38
-#define BOARD_PIN_BTN_OK        0
-#define BOARD_PIN_BTN_BACK      4
-#define BOARD_PIN_BUTTON_BOOT   0  
-#define BOARD_PIN_BATTERY_ADC   2
+/* ---- Hardware Button / Encoder Pins ---- */
+#define BOARD_PIN_BUTTON_BOOT   0   /* Encoder button (BOOT/IO00, active low) */
+#define BOARD_PIN_BUTTON_KEY    6   /* Side key button */
+#define BOARD_PIN_BATTERY_ADC   UINT16_MAX  /* No battery ADC on this board */
+
+/* ---- Rotary Encoder ---- */
+#define BOARD_PIN_ENCODER_A     4
+#define BOARD_PIN_ENCODER_B     5
+#define BOARD_PIN_ENCODER_BTN   0   /* Same as BOOT button */
 
 /* ---- LCD Pins (ST7789 via SPI) ---- */
-#define BOARD_PIN_LCD_MOSI      17
-#define BOARD_PIN_LCD_SCLK      18
-#define BOARD_PIN_LCD_DC        15
-#define BOARD_PIN_LCD_CS        7
-#define BOARD_PIN_LCD_RST       16
-#define BOARD_PIN_LCD_BL        6
+#define BOARD_PIN_LCD_MOSI      9
+#define BOARD_PIN_LCD_SCLK      11
+#define BOARD_PIN_LCD_DC        16
+#define BOARD_PIN_LCD_CS        41
+#define BOARD_PIN_LCD_RST       40
+#define BOARD_PIN_LCD_BL        21  /* Backlight PWM */
 
 /* ---- LCD Display Configuration ---- */
-#define BOARD_LCD_H_RES         240     /* Độ phân giải ngang */
-#define BOARD_LCD_V_RES         135     /* Độ phân giải dọc (Sửa từ 320 thành 135 hoặc 240 tùy loại màn của bạn) */
+#define BOARD_LCD_H_RES         320     /* Native width after swap_xy */
+#define BOARD_LCD_V_RES         170     /* Native height after swap_xy */
 #define BOARD_LCD_SPI_HOST      SPI2_HOST
-#define BOARD_LCD_SPI_FREQ_HZ   (40 * 1000 * 1000) /* ST7789 chịu được tần số cao, có thể để 40MHz cho mượt */
+#define BOARD_LCD_SPI_FREQ_HZ   (40 * 1000 * 1000)
 #define BOARD_LCD_CMD_BITS      8
 #define BOARD_LCD_PARAM_BITS    8
 #define BOARD_LCD_SWAP_XY       true
-#define BOARD_LCD_MIRROR_X      false
-#define BOARD_LCD_MIRROR_Y      false
-#define BOARD_LCD_INVERT_COLOR  true    /* ⚠️ QUAN TRỌNG: ST7789 hầu hết đều cần INVERT màu thì mới hiển thị đúng */
-#define BOARD_LCD_GAP_X         0
-#define BOARD_LCD_GAP_Y         0
-#define BOARD_LCD_BL_ACTIVE_LOW false
-#define BOARD_LCD_COLOR_ORDER_BGR false /* ST7789 thường dùng bảng màu RGB thay vì BGR */
+#define BOARD_LCD_MIRROR_X      false   /* 180° rotated vs Waveshare */
+#define BOARD_LCD_MIRROR_Y      true    /* 180° rotated vs Waveshare */
+#define BOARD_LCD_INVERT_COLOR  true    /* T-Embed ST7789 uses display inversion ON */
+#define BOARD_LCD_GAP_X         0       /* TODO: verify gap on hardware */
+#define BOARD_LCD_GAP_Y         35      /* TODO: verify gap on hardware */
+#define BOARD_LCD_BL_ACTIVE_LOW false   /* Backlight is active-high */
+#define BOARD_LCD_COLOR_ORDER_BGR false /* RGB order with esp_lcd driver */
 
-/* Flipper framebuffer → display color mapping (RGB565) */
-#define BOARD_LCD_FG_COLOR      0xF7E0  /* Màu cam Flipper đặc trưng ở dạng RGB565 */
-#define BOARD_LCD_BG_COLOR      0x0000  /* Nền đen */
+/* Flipper framebuffer → display color mapping (RGB565, native byte order) */
+#define BOARD_LCD_FG_COLOR      0xA0FD  /* Flipper Orange 0xFDA0 byte-swapped for S3 SPI */
+#define BOARD_LCD_FG_COLOR_RB   0x5F03  /* Same orange with R/B swapped (0x035F swapped) — for post-flash BGR state */
+#define BOARD_LCD_BG_COLOR      0x0000  /* Black */
 
-/* ---- SD Card Pins ---- */
-#define BOARD_PIN_SD_CS         3
-#define BOARD_PIN_SD_MISO       8
-#define BOARD_PIN_SD_MOSI       17
-#define BOARD_PIN_SD_SCLK       18
+/* ---- SD Card Pins (shared SPI bus with LCD and CC1101) ---- */
+#define BOARD_PIN_SD_CS         13
+#define BOARD_PIN_SD_MISO       10
 
-/* ---- Touch Controller — NOT PRESENT ---- */
+/* ---- Touch Controller — NOT PRESENT (rotary encoder input) ---- */
 #define BOARD_PIN_TOUCH_SCL     UINT16_MAX
 #define BOARD_PIN_TOUCH_SDA     UINT16_MAX
 #define BOARD_PIN_TOUCH_RST     UINT16_MAX
@@ -74,81 +73,84 @@
 #define BOARD_TOUCH_I2C_FREQ_HZ 0
 #define BOARD_TOUCH_I2C_TIMEOUT 0
 
-/* ---- SubGHz / CC1101 ---- */
-#define BOARD_PIN_CC1101_SCK    13
-#define BOARD_PIN_CC1101_CSN    46
-#define BOARD_PIN_CC1101_MISO   11
-#define BOARD_PIN_CC1101_MOSI   12
-#define BOARD_PIN_CC1101_GDO0   9
-#define BOARD_PIN_CC1101_GDO2   10
-#define BOARD_CC1101_SPI_HOST   SPI3_HOST
-#define BOARD_CC1101_SPI_SHARED 0
+/* ---- SubGHz / CC1101 (shared SPI bus with LCD + SD) ---- */
+#define BOARD_PIN_CC1101_SCK    11      /* Shared with LCD_CLK and SD_SCLK */
+#define BOARD_PIN_CC1101_CSN    12      /* LORA_CS */
+#define BOARD_PIN_CC1101_MISO   10      /* Shared with SD_MISO */
+#define BOARD_PIN_CC1101_MOSI   9       /* Shared with LCD_MOSI and SD_MOSI */
+#define BOARD_PIN_CC1101_GDO0   3       /* LORA_IO0 — CC1101 GDO0 interrupt */
+#define BOARD_PIN_CC1101_GDO2   38      /* LORA_IO2 — CC1101 GDO2 */
+#define BOARD_PIN_CC1101_SW1    47      /* RF band switch: see table below */
+#define BOARD_PIN_CC1101_SW0    48      /* RF band switch: see table below */
+/* Band selection: SW1=H SW0=L → 315MHz, SW1=L SW0=H → 868/915MHz, SW1=H SW0=H → 434MHz */
+#define BOARD_CC1101_SPI_SHARED 1       /* CC1101 shares SPI2_HOST with LCD+SD (CS-muxed) */
 
-
-/* ---- NRF24L01 ---- */
-#define BOARD_PIN_NRF24_SCK     13
-#define BOARD_PIN_NRF24_MISO    11
-#define BOARD_PIN_NRF24_MOSI    12
-#define BOARD_PIN_NRF24_CSN     14
-#define BOARD_PIN_NRF24_CE      21
+/* ---- NRF24L01 (built-in, parallel to CC1101 on the shared SPI bus) ---- */
+/* The T-Embed CC1101 board carries an on-board NRF24L01 that sits on the same
+ * SPI2_HOST as LCD+SD+CC1101 but with its own CS and CE pins. IRQ is not wired. */
+#define BOARD_PIN_NRF24_SCK     BOARD_PIN_CC1101_SCK    /* IO11 -- shared */
+#define BOARD_PIN_NRF24_MISO    BOARD_PIN_CC1101_MISO   /* IO10 -- shared */
+#define BOARD_PIN_NRF24_MOSI    BOARD_PIN_CC1101_MOSI   /* IO9  -- shared */
+#define BOARD_PIN_NRF24_CSN     44                      /* IO44 -- NRF24-only */
+#define BOARD_PIN_NRF24_CE      43                      /* IO43 -- NRF24-only */
 #define BOARD_HAS_NRF24         1
 
-/* ---- Power Enable ---- */
-//#define BOARD_PIN_PWR_EN        5
+/* ---- Power Enable (controls CC1101 + WS2812 power) ---- */
+#define BOARD_PIN_PWR_EN        15      /* Must be HIGH to power CC1101 and WS2812 */
 
 /* ---- IR ---- */
-#define BOARD_PIN_IR_TX         5  
-#define BOARD_PIN_IR_RX         UINT16_MAX  
+#define BOARD_PIN_IR_TX         2       /* IR_EN */
+#define BOARD_PIN_IR_RX         1       /* IR_RX */
 
 /* ---- NFC / PN532 (via I2C) ---- */
-#define BOARD_PIN_NFC_SCL       42
-#define BOARD_PIN_NFC_SDA       47
-#define BOARD_PIN_NFC_IRQ       UINT16_MAX
-#define BOARD_PIN_NFC_RST       UINT16_MAX
+#define BOARD_PIN_NFC_SCL       18
+#define BOARD_PIN_NFC_SDA       8
+#define BOARD_PIN_NFC_IRQ       17
+#define BOARD_PIN_NFC_RST       45      /* PN532_RF_RES */
 #define BOARD_NFC_I2C_PORT      I2C_NUM_0
 
 /* ---- Speaker (I2S) ---- */
-#define BOARD_PIN_SPEAKER_BCLK  UINT16_MAX
-#define BOARD_PIN_SPEAKER_WCLK  UINT16_MAX
-#define BOARD_PIN_SPEAKER_DOUT  UINT16_MAX
+#define BOARD_PIN_SPEAKER_BCLK  46
+#define BOARD_PIN_SPEAKER_WCLK  40
+#define BOARD_PIN_SPEAKER_DOUT  7
 
-/* ---- WS2812 RGB LED ---- */
-#define BOARD_PIN_WS2812_DATA   48
-#define BOARD_WS2812_LED_COUNT  1
+/* ---- WS2812 RGB LED Strip ---- */
+#define BOARD_PIN_WS2812_DATA   14
+#define BOARD_WS2812_LED_COUNT  8
 
-/* ---- Microphone ---- */
-#define BOARD_PIN_MIC_DATA      UINT16_MAX
-#define BOARD_PIN_MIC_CLK       UINT16_MAX
+/* ---- Microphone (I2S PDM) ---- */
+#define BOARD_PIN_MIC_DATA      42
+#define BOARD_PIN_MIC_CLK       39
 
-/* ---- Qwiic / External I2C ---- */
-#define BOARD_PIN_QWIIC_SDA     47
-#define BOARD_PIN_QWIIC_SCL     42
+/* ---- Qwiic / External I2C (shared with NFC) ---- */
+#define BOARD_PIN_QWIIC_SDA     8       /* Shared with NFC SDA */
+#define BOARD_PIN_QWIIC_SCL     18      /* Shared with NFC SCL */
 
 /* ---- Features ---- */
 #define BOARD_HAS_TOUCH         0
-#define BOARD_HAS_ENCODER       0
-#define BOARD_HAS_SD_CARD       0
+#define BOARD_HAS_ENCODER       1
+#define BOARD_HAS_SD_CARD       1
 #define BOARD_HAS_BLE           1
 #define BOARD_HAS_RGB_LED       1
 #define BOARD_HAS_VIBRO         0
-#define BOARD_HAS_SPEAKER       0
+#define BOARD_HAS_SPEAKER       1
 #define BOARD_HAS_IR            1
 #define BOARD_HAS_IBUTTON       0
-#define BOARD_HAS_RFID          0
+#define BOARD_HAS_RFID          1
+
+/* ---- RFID / RDM6300 (UART, 125kHz read-only) ---- */
+#define BOARD_PIN_RFID_RX       44      /* GROVE / SERIAL_RX */
+#define BOARD_PIN_RFID_TX       43      /* GROVE / SERIAL_TX */
+#define BOARD_RFID_UART_NUM     1       /* UART1 */
 #define BOARD_HAS_NFC           1
-#define BOARD_HAS_SUBGHZ        1
-#define BOARD_HAS_MIC           0
+#define BOARD_HAS_SUBGHZ        1       /* Built-in CC1101 */
+#define BOARD_HAS_MIC           1
 
-/* ---- RFID ---- */
-#define BOARD_PIN_RFID_RX       44
-#define BOARD_PIN_RFID_TX       43
-#define BOARD_RFID_UART_NUM     1
-
-/* ---- Battery ---- */
+/* Battery Charger */
 #define BQ27220_ADDR            0x55
-#define BQ_I2C_PORT             I2C_NUM_0
-#define BQ_I2C_SDA              BOARD_PIN_QWIIC_SDA
-#define BQ_I2C_SCL              BOARD_PIN_QWIIC_SCL
+#define BQ_I2C_PORT     I2C_NUM_0
+#define BQ_I2C_SDA      BOARD_PIN_QWIIC_SDA
+#define BQ_I2C_SCL      BOARD_PIN_QWIIC_SCL
 #define HIGH_DRAIN_CURRENT_THRESHOLD (-200)
 #define FURI_HAL_POWER_VIRTUAL_CAPACITY_MAH     (1300U)
-#define BQ25896_CHARGE_LIMIT    1280
+#define BQ25896_CHARGE_LIMIT  1280
