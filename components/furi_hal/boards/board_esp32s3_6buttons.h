@@ -28,7 +28,7 @@
 #define BOARD_PIN_BUTTON_BOOT   0  
 #define BOARD_PIN_BATTERY_ADC   2
 
-/* ---- LCD Pins (ILI9341 via SPI) ---- */
+/* ---- LCD Pins (ST7789 via SPI) ---- */
 #define BOARD_PIN_LCD_MOSI      17
 #define BOARD_PIN_LCD_SCLK      18
 #define BOARD_PIN_LCD_DC        15
@@ -37,24 +37,24 @@
 #define BOARD_PIN_LCD_BL        6
 
 /* ---- LCD Display Configuration ---- */
-#define BOARD_LCD_H_RES         240     /* Native width after swap_xy */
-#define BOARD_LCD_V_RES         135     /* Native height after swap_xy */
+#define BOARD_LCD_H_RES         240     /* Độ phân giải ngang */
+#define BOARD_LCD_V_RES         135     /* Độ phân giải dọc (Sửa từ 320 thành 135 hoặc 240 tùy loại màn của bạn) */
 #define BOARD_LCD_SPI_HOST      SPI2_HOST
-#define BOARD_LCD_SPI_FREQ_HZ   (20 * 1000 * 1000)
+#define BOARD_LCD_SPI_FREQ_HZ   (40 * 1000 * 1000) /* ST7789 chịu được tần số cao, có thể để 40MHz cho mượt */
 #define BOARD_LCD_CMD_BITS      8
 #define BOARD_LCD_PARAM_BITS    8
 #define BOARD_LCD_SWAP_XY       true
 #define BOARD_LCD_MIRROR_X      false
 #define BOARD_LCD_MIRROR_Y      false
-#define BOARD_LCD_INVERT_COLOR  false   /* ILI9341 does not need inversion */
+#define BOARD_LCD_INVERT_COLOR  true    /* ⚠️ QUAN TRỌNG: ST7789 hầu hết đều cần INVERT màu thì mới hiển thị đúng */
 #define BOARD_LCD_GAP_X         0
 #define BOARD_LCD_GAP_Y         0
 #define BOARD_LCD_BL_ACTIVE_LOW false
-#define BOARD_LCD_COLOR_ORDER_BGR true
+#define BOARD_LCD_COLOR_ORDER_BGR false /* ST7789 thường dùng bảng màu RGB thay vì BGR */
 
 /* Flipper framebuffer → display color mapping (RGB565) */
-#define BOARD_LCD_FG_COLOR      0xA0FD
-#define BOARD_LCD_BG_COLOR      0x0000  /* Black */
+#define BOARD_LCD_FG_COLOR      0xF7E0  /* Màu cam Flipper đặc trưng ở dạng RGB565 */
+#define BOARD_LCD_BG_COLOR      0x0000  /* Nền đen */
 
 /* ---- SD Card Pins ---- */
 #define BOARD_PIN_SD_CS         3
@@ -125,7 +125,7 @@
 /* ---- Features ---- */
 #define BOARD_HAS_TOUCH         0
 #define BOARD_HAS_ENCODER       0
-#define BOARD_HAS_SD_CARD       1
+#define BOARD_HAS_SD_CARD       0
 #define BOARD_HAS_BLE           1
 #define BOARD_HAS_RGB_LED       1
 #define BOARD_HAS_VIBRO         0
