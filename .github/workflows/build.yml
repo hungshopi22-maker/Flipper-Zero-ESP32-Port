@@ -23,6 +23,12 @@ jobs:
             chip: esp32s3
             flash_size: 16MB
     steps:
+      - name: Clean Environment
+        run: |
+          rm -rf managed_components
+          rm -rf build_s3
+          rm -f dependencies.lock
+          rm -rf ~/.espressif/idf_component_manager
       - name: Checkout code
         uses: actions/checkout@v4
         with:
