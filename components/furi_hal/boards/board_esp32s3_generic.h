@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "board_esp32s3_6buttons.h"
+#include "board_lilygo_t_embed_cc1101.h"
 
 /* Override identity so logs and version strings show the generic name */
 #undef BOARD_NAME
