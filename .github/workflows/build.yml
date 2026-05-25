@@ -23,11 +23,15 @@ jobs:
             chip: esp32s3
             flash_size: 16MB
     steps:
-      - name: Clean Environment
+       - name: Clear Corrupted Managed Components
         run: |
-          rm -rf managed_components
+          # Xóa sạch cấu hình build cũ
           rm -rf build_s3
+          # Xóa sạch các thành phần đã được quản lý (managed components)
+          rm -rf managed_components
+          # Xóa file khóa dependencies để ép tạo lại từ đầu
           rm -f dependencies.lock
+          # Xóa cache của component manager (nguyên nhân chính gây lỗi hash)
           rm -rf ~/.espressif/idf_component_manager
       - name: Checkout code
         uses: actions/checkout@v4
