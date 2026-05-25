@@ -40,7 +40,7 @@
 #define BOARD_LCD_H_RES         240     /* Độ phân giải ngang */
 #define BOARD_LCD_V_RES         135     /* Độ phân giải dọc (Sửa từ 320 thành 135 hoặc 240 tùy loại màn của bạn) */
 #define BOARD_LCD_SPI_HOST      SPI2_HOST
-#define BOARD_LCD_SPI_FREQ_HZ   (20 * 1000 * 1000) /* ST7789 chịu được tần số cao, có thể để 40MHz cho mượt */
+#define BOARD_LCD_SPI_FREQ_HZ   (40 * 1000 * 1000) /* ST7789 chịu được tần số cao, có thể để 40MHz cho mượt */
 #define BOARD_LCD_CMD_BITS      8
 #define BOARD_LCD_PARAM_BITS    8
 #define BOARD_LCD_SWAP_XY       true
