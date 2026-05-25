@@ -22,21 +22,19 @@ jobs:
             artifact_name: flipper-esp32s3-generic
             chip: esp32s3
             flash_size: 16MB
+
     steps:
-       - name: Clear Corrupted Managed Components
-        run: |
-          # Xóa sạch cấu hình build cũ
-          rm -rf build_s3
-          # Xóa sạch các thành phần đã được quản lý (managed components)
-          rm -rf managed_components
-          # Xóa file khóa dependencies để ép tạo lại từ đầu
-          rm -f dependencies.lock
-          # Xóa cache của component manager (nguyên nhân chính gây lỗi hash)
-          rm -rf ~/.espressif/idf_component_manager
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           submodules: recursive
+
+      - name: Clean Environment
+        run: |
+          rm -rf build_s3
+          rm -rf managed_components
+          rm -f dependencies.lock
+          rm -rf ~/.espressif/idf_component_manager
 
       - name: Clean stale sdkconfig
         run: |
@@ -97,44 +95,21 @@ jobs:
           FLASH_SIZE="${{ matrix.board.flash_size }}"
           BUILD="${{ matrix.board.build_dir }}"
           STAGE="artifact_staging"
-
-          # Clean flat staging directory — what users actually unzip
           rm -rf "$STAGE"
           mkdir -p "$STAGE/bootloader" "$STAGE/partition_table"
-
-          # Firmware binaries
-          cp "$BUILD/furi_esp32.bin"                          "$STAGE/furi_esp32.bin"
-          cp "$BUILD/bootloader/bootloader.bin"               "$STAGE/bootloader/bootloader.bin"
-          cp "$BUILD/partition_table/partition-table.bin"     "$STAGE/partition_table/partition-table.bin"
-
-          # ESP-IDF flash-args file (contains verified offsets and flash params)
+          cp "$BUILD/furi_esp32.bin" "$STAGE/furi_esp32.bin"
+          cp "$BUILD/bootloader/bootloader.bin" "$STAGE/bootloader/bootloader.bin"
+          cp "$BUILD/partition_table/partition-table.bin" "$STAGE/partition_table/partition-table.bin"
           if [ -f "$BUILD/flash_project_args" ]; then
             cp "$BUILD/flash_project_args" "$STAGE/flash_args.txt"
           fi
-
-          # Generate board-specific flash scripts by substituting template placeholders
-          sed \
-            -e "s/__BOARD_NAME__/${BOARD}/g" \
-            -e "s/__CHIP__/${CHIP}/g"         \
-            -e "s/__FLASH_SIZE__/${FLASH_SIZE}/g" \
-            tools/flash_linux.sh > "$STAGE/flash_linux.sh"
+          sed -e "s/__BOARD_NAME__/${BOARD}/g" -e "s/__CHIP__/${CHIP}/g" -e "s/__FLASH_SIZE__/${FLASH_SIZE}/g" tools/flash_linux.sh > "$STAGE/flash_linux.sh"
           chmod +x "$STAGE/flash_linux.sh"
-
-          sed \
-            -e "s/__BOARD_NAME__/${BOARD}/g" \
-            -e "s/__CHIP__/${CHIP}/g"         \
-            -e "s/__FLASH_SIZE__/${FLASH_SIZE}/g" \
-            tools/flash_windows.bat > "$STAGE/flash_windows.bat"
-
-          echo ""
-          echo "=== Staged artifact contents ==="
-          ls -lh "$STAGE" "$STAGE/bootloader" "$STAGE/partition_table"
+          sed -e "s/__BOARD_NAME__/${BOARD}/g" -e "s/__CHIP__/${CHIP}/g" -e "s/__FLASH_SIZE__/${FLASH_SIZE}/g" tools/flash_windows.bat > "$STAGE/flash_windows.bat"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.board.artifact_name }}
-          # Upload from the flat staging dir so the zip has no extra path prefix.
-          # Users unzip and immediately run flash_linux.sh or flash_windows.bat.
           path: artifact_staging/
           retention-days: 30
