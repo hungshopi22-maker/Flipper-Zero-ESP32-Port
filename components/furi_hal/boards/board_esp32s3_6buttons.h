@@ -37,8 +37,8 @@
 #define BOARD_PIN_LCD_BL        6
 
 /* ---- LCD Display Configuration ---- */
-#define BOARD_LCD_H_RES         320     /* Native width after swap_xy */
-#define BOARD_LCD_V_RES         240     /* Native height after swap_xy */
+#define BOARD_LCD_H_RES         240     /* Native width after swap_xy */
+#define BOARD_LCD_V_RES         135     /* Native height after swap_xy */
 #define BOARD_LCD_SPI_HOST      SPI2_HOST
 #define BOARD_LCD_SPI_FREQ_HZ   (20 * 1000 * 1000)
 #define BOARD_LCD_CMD_BITS      8
