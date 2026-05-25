@@ -150,3 +150,11 @@
 #define HIGH_DRAIN_CURRENT_THRESHOLD (-200)
 #define FURI_HAL_POWER_VIRTUAL_CAPACITY_MAH     (1300U)
 #define BQ25896_CHARGE_LIMIT    1280
+/* Fix lỗi biên dịch do thiếu định nghĩa chân Input */
+#ifndef BOARD_PIN_ENCODER_BTN
+#define BOARD_PIN_ENCODER_BTN 0
+#endif
+
+#ifndef BOARD_PIN_BUTTON_KEY
+#define BOARD_PIN_BUTTON_KEY 0
+#endif
